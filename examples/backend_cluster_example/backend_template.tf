@@ -2,7 +2,7 @@
 # Copy it to a new directory, outside of this repository.
 
 module "k3s" {
-  source       = "git::https://0xacab.org/leap/container-platform/terraform-k3s.git//hetzner?ref=no-masters"
+  source       = "git::https://0xacab.org/leap/container-platform/terraform-hetzner-k3s-vpn.git?ref=no-masters"
   hcloud_token = var.hcloud_token
 
   # Cluster name
