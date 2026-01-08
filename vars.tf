@@ -38,7 +38,7 @@ variable "k3s_leader_count" {
 variable "k3s_controller_server_type" {
   type        = string
   default     = "cx23"
-  description = "Choose one from https://www.hetzner.com/cloud/#pricing"
+  description = "Choose one from https://www.hetzner.com/cloud/#pricing, only choose Intel/AMD machines."
 
   validation {
     # validating the availability of the controller server type in the configured datacenter
@@ -74,13 +74,13 @@ variable "datacenter" {
 variable "k3s_gateway_server_type" {
   type        = string
   default     = "cx23"
-  description = "Choose one from https://www.hetzner.com/cloud/#pricing"
+  description = "Choose one from https://www.hetzner.com/cloud/#pricing, only choose Intel/AMD machines."
 }
 
 variable "k3s_backend_server_type" {
   type        = string
-  default     = "cax11"
-  description = "Choose one from https://www.hetzner.com/cloud/#pricing"
+  default     = "cx23"
+  description = "Choose one from https://www.hetzner.com/cloud/#pricing, only choose Intel/AMD machines."
 }
 
 variable "k3s_worker_nodes" {
