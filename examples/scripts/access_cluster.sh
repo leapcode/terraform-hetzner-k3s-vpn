@@ -89,7 +89,7 @@ REMOTE_FORWARD_PORT=6443
 if [[ $FLAGS_START == 1 ]]; then
     cd $BASE_DIR
     if [[ -z "$PUBLIC_IP" ]]; then
-      PUBLIC_IP=$(terraform output -raw controller_public_ip)
+      PUBLIC_IP=$(terraform output -raw k3s_controller_ip)
     fi
     scp -o ConnectTimeout=10 debian@"$PUBLIC_IP":/etc/rancher/k3s/k3s.yaml ./k3s-remote.yaml
     PRIVATE_IP=$(cat k3s-remote.yaml | grep server | cut -d ":" -f3 | sed -r 's/\/+//g')
