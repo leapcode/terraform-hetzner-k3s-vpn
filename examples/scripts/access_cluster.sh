@@ -39,6 +39,9 @@ getAbsDir(){
 # Set default base dir to parent directory, assuming this script is in a /scripts directory
 BASE_DIR=$(getAbsDir "$(dirname "$0")/..")
 
+# Initialize variable
+PUBLIC_IP=""
+
 # Command line flag parsing
 FLAGS_START=0
 FLAGS_STOP=0
@@ -91,7 +94,7 @@ if [[ $FLAGS_START == 1 ]]; then
     if [[ -z "$PUBLIC_IP" ]]; then
       PUBLIC_IP=$(terraform output -raw k3s_controller_ip)
     fi
-    scp -o ConnectTimeout=10 debian@"$PUBLIC_IP":/etc/rancher/k3s/k3s.yaml ./k3s-remote.yaml
+    scp -o ConnectTimeout=10 root@"$PUBLIC_IP":/etc/rancher/k3s/k3s.yaml ./k3s-remote.yaml
     PRIVATE_IP=$(cat k3s-remote.yaml | grep server | cut -d ":" -f3 | sed -r 's/\/+//g')
 
     ssh -f -N -T -L $LOCAL_PORT:$PRIVATE_IP:$REMOTE_FORWARD_PORT $REMOTE_USER@$PUBLIC_IP $SSH_KEY_OPTION
