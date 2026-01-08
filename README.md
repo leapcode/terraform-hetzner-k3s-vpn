@@ -91,12 +91,14 @@ If not done before, copy the directory `terraform-k3s/hetzner/examples/scripts` 
 ```bash
 eval $(./scripts/access_cluster.sh --start)
 ```
-Calling this script like described above will pull the k3s.yml from your controller node, adapt it for use on localhost, create in a background process a ssh tunnel with port forwarding on port 6443 to your controller node and automatically export the `KUBECONFIG` environment variable to your current shell. 
+Calling this script like described above will pull the k3s.yml from your controller node, adapt it for use on localhost, create in a background process a ssh tunnel with port forwarding on port 6443 to your controller node and automatically export the `KUBECONFIG` environment variable to your current shell.
+
+You can also use the script to access a cluster that you have ssh-access to but that you haven't provisioned yourself. If there is no **terraform.tfstate** file in the parent directory you will be prompted for the public IP address of your controller node.
 
 If you have provisioned your cluster with a different SSH key than your default one, you can amend `--ssh-key <path/to/your/ssh-key` to the command:
 
 ```bash
-eval $(./scripts/portforwarding.sh --start --ssh-key <path/to/your/ssh-key>)
+eval $(./scripts/access_cluster.sh --start --ssh-key <path/to/your/ssh-key>)
 ```
 
 Test the kubectl commands using the following command (if you haven’t yet installed kubectl on your local machine, follow this guide: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/). This should return a table with your deployed nodes.
