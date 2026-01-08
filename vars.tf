@@ -37,7 +37,7 @@ variable "k3s_leader_count" {
 
 variable "k3s_controller_server_type" {
   type        = string
-  default     = "cpx11"
+  default     = "cx23"
   description = "Choose one from https://www.hetzner.com/cloud/#pricing"
 
   validation {
