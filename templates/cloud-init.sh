@@ -44,8 +44,11 @@ else
   echo "K3S_URL is set to: ${k3s_url}, continuing as worker node"
 fi
 
-# flags for gateway
 if ${gateway_mode_enabled}; then
+ #install and load ovpn-dco module Ref: https://github.com/OpenVPN/ovpn-dco
+ apt install -yq openvpn-dco-dkms dkms linux-headers-$(uname -r)
+ modprobe ovpn-dco-v2
+ # flags for gateway
  export INSTALL_K3S_EXEC="$INSTALL_K3S_EXEC \
  --kubelet-arg=allowed-unsafe-sysctls=net.ipv4.ip_forward"
 fi
