@@ -72,4 +72,6 @@ locals {
     }
   }
 
+  k3s_worker_nodes_gateway = var.gateway_mode_enabled ? { for idx, node in local.k3s_worker_nodes : node.name => node } : {}
+
 }

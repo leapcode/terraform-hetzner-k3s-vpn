@@ -33,14 +33,14 @@ resource "hcloud_server_network" "k3s_worker_network" {
 }
 
 resource "hcloud_floating_ip" "k3s_worker" {
-  for_each      = { for idx, node in local.k3s_worker_nodes : node.name => node }
+  for_each      = local.k3s_worker_nodes_gateway # Empty map when gateway_mode_enabled = false
   name          = "${var.k3s_cluster_name}-${each.key}"
   type          = "ipv4"
   home_location = split("-", var.datacenter)[0]
 }
 
 resource "hcloud_floating_ip_assignment" "k3s_worker" {
-  for_each       = { for idx, node in local.k3s_worker_nodes : node.name => node }
+  for_each       = local.k3s_worker_nodes_gateway # Empty map when gateway_mode_enabled = false
   floating_ip_id = hcloud_floating_ip.k3s_worker[each.key].id
   server_id      = hcloud_server.k3s_worker[each.key].id
 }
