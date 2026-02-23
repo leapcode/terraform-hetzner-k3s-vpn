@@ -11,6 +11,9 @@ apt-get install -yq \
 PUBLIC_IP=$(curl http://169.254.169.254/hetzner/v1/metadata/public-ipv4|sed 's/\/32//')
 PRIVATE_IP=${private_ip}
 FLOATING_IP=${floating_ip}
+CLUSTER_CIDR=${cluster_cidr}
+SERVICE_CIDR=${service_cidr}
+CLUSTER_DNS=${cluster_dns}
 
 export K3S_TOKEN=${k3s_token} 
 export INSTALL_K3S_EXEC="--node-ip $PRIVATE_IP \
@@ -20,7 +23,10 @@ if [[ -z "${k3s_url}" ]]; then
   echo "K3S_URL is empty, continuing as controller node"
     # disable traefik installation via k3s installer 
     export INSTALL_K3S_EXEC="$INSTALL_K3S_EXEC \
-        --disable=traefik"
+        --disable=traefik \
+        --cluster-cidr $CLUSTER_CIDR \
+        --service-cidr $SERVICE_CIDR \
+        --cluster-dns $CLUSTER_DNS"
 
   if [ "${total_leaders}" -eq 1 ]; then
     # single leader cluster

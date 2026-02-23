@@ -13,6 +13,9 @@ resource "hcloud_server" "k3s_controller" {
     leader_count         = "${count.index}"
     private_ip           = cidrhost(hcloud_network_subnet.controllers.ip_range, 2 + count.index)
     floating_ip          = var.gateway_mode_enabled ? hcloud_floating_ip.k3s_controller[count.index].ip_address : ""
+    cluster_cidr         = var.k3s_cluster_cidr
+    service_cidr         = var.k3s_service_cidr
+    cluster_dns          = var.k3s_cluster_dns
     gateway_mode_enabled = var.gateway_mode_enabled
   })
 

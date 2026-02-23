@@ -10,12 +10,14 @@ resource "hcloud_server" "k3s_worker" {
   user_data = templatefile("${path.module}/templates/cloud-init.sh", {
     k3s_token            = random_password.k3s_token.result,
     k3s_url              = hcloud_server_network.k3s_controller_network[0].ip,
-    leader_count         = "",
+    leader_count         = ""
     total_leaders        = ""
     private_ip           = cidrhost(hcloud_network_subnet.workers[each.value.group_name].ip_range, 2 + index([for node in local.k3s_worker_nodes : node.name if node.group_name == each.value.group_name], each.key))
     floating_ip          = var.gateway_mode_enabled ? hcloud_floating_ip.k3s_worker[each.key].ip_address : ""
     gateway_mode_enabled = var.gateway_mode_enabled
-
+    cluster_cidr         = ""
+    service_cidr         = ""
+    cluster_dns          = ""
   })
 
   labels = merge({

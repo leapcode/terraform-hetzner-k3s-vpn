@@ -35,6 +35,26 @@ variable "k3s_leader_count" {
   }
 }
 
+# the following three variables set the K3S cluster_cidr, service_cidr and cluster_dns
+# https://docs.k3s.io/cli/server#networking
+variable "k3s_cluster_cidr" {
+  type        = string
+  default     = "10.120.0.0/16"
+  description = "Set the '--cluster-cidr' flag with the value. It should not overlap with the openvpn subnet"
+}
+
+variable "k3s_service_cidr" {
+  type        = string
+  default     = "10.121.0.0/16"
+  description = "Set the '--service-cidr' flag with the value. It should not overlap with the openvpn subnet"
+}
+
+variable "k3s_cluster_dns" {
+  type        = string
+  default     = "10.121.0.10"
+  description = "Set the '--cluster-dns' flag with the value. It should be in the range of the service-cidr"
+}
+
 variable "k3s_controller_server_type" {
   type        = string
   default     = "cx23"
@@ -192,3 +212,4 @@ variable "hcloud_token" {
   sensitive   = true
   description = "Hetzner API token, needs to have Read and Write access"
 }
+
