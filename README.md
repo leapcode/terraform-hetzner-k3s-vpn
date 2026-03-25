@@ -53,7 +53,7 @@ Just copy the whole `hetzner/exmaples` directory to a directory you wish (your w
 Make sure you have access to the git repo and can git clone it, otherwise terraform initialization will fail.
 Alternatively you can use the ssh-method to clone the repo during the init-process by replacing the `source = ...`  line by `source = "git::ssh://git@0xacab.org/leap/container-platform/terraform-k3s.git"`
 
-  2. Provide important variables
+### 2.2 Provide important variables
 
 Below is a list of the variables you ***must*** provide in your config:
 | Variable | Type | Description |
@@ -86,47 +86,4 @@ You can check on the Hetzner cloud console dashboard if all of your resources ar
 
 ## 4. Accessing the cluster using port forwarding
 
-This method allows provisioning from your local machine to remotes.
-If not done before, copy the directory `terraform-k3s/hetzner/examples/scripts` to your work directory and run within the work directory:
-```bash
-eval $(./scripts/access_cluster.sh --start)
-```
-Calling this script like described above will pull the k3s.yml from your controller node, adapt it for use on localhost, create in a background process a ssh tunnel with port forwarding on port 6443 to your controller node and automatically export the `KUBECONFIG` environment variable to your current shell.
-
-You can also use the script to access a cluster that you have ssh-access to but that you haven't provisioned yourself. If there is no **terraform.tfstate** file in the parent directory you will be prompted for the public IP address of your controller node.
-
-If you have provisioned your cluster with a different SSH key than your default one, you can amend `--ssh-key <path/to/your/ssh-key` to the command:
-
-```bash
-eval $(./scripts/access_cluster.sh --start --ssh-key <path/to/your/ssh-key>)
-```
-
-Test the kubectl commands using the following command (if you haven’t yet installed kubectl on your local machine, follow this guide: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/). This should return a table with your deployed nodes.
-
-```bash
-kubectl get nodes -o wide
-```
-
-If you want to run kubectl in a different shell then the one you've used to start port forwarding just export there the KUBECONFIG:
-
-```bash
-export KUBECONFIG=<path-to-your-work-dir>/k3s-local.yaml
-```
-
-### Stopping port forwarding
-Once you're done with your work, you should close your ssh session to your controller node and disable port forwarding again. This can be done by running
-
-```bash
-./scripts/portforwarding.sh --stop
-```
-
-### Some useful `kubectl` commands
-#### list all nodes and wide output
-```bash
-kubectl get nodes -o wide
-```
-
-#### list all pods in all namespaces
-```bash
-kubectl get pods -A -o wide
-```
+The [podlily](https://0xacab.org/leap/container-platform/podlily) repository contains a script `access_cluster.sh` that can be used to port-forward into the cluster. This method also allows provisioning from your local machine to remotes. Copy the script into this directory to use it. You can find more information on the script in its documentation that is also part of podlily.
