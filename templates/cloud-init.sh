@@ -26,7 +26,8 @@ if [[ -z "${k3s_url}" ]]; then
         --disable=traefik \
         --cluster-cidr $CLUSTER_CIDR \
         --service-cidr $SERVICE_CIDR \
-        --cluster-dns $CLUSTER_DNS"
+        --cluster-dns $CLUSTER_DNS \
+        --secrets-encryption" 
 
   if [ "${total_leaders}" -eq 1 ]; then
     # single leader cluster
