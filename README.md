@@ -10,7 +10,7 @@ A Terraform module to provision a minimal k3s Kubernetes cluster tailored to LEA
 * Private networking between nodes
 * Easily extensible for more nodes or features
 
-## Architecture
+## Backend cluster architecture
 
 We propose the following setup of services across worker nodes:
 
@@ -30,21 +30,18 @@ We propose the following setup of services across worker nodes:
 
 # Provisioning on Hetzner Cloud
 
-## 1. Create a public cloud project and API token on Hetzner
+## 1. Create a public cloud project on Hetzner
 
-Follow these steps to set up your project and generate the required API token.
+Follow these steps to set up your project.
 
 1. Create a Hetzner Account and Log in.
 2. Create a new project: on the Dashboard, click `New Project`, enter a name and click `Add project`.
-3. Generate a Read-Write token. Enter the new project and navigate to `Security` settings (left sidebar, bottom).
-Go to the `API tokens` tab and click `Generate API token`. Store the generated token securily. It is only shown once in the web interface.
 
 ## 2. Configure your project
 
-It's easiest to start with the template directory located under `hetzner/examples`. This directory contains:
+It's easiest to start with the template files for backend and gateway cluster located under `hetzner/examples`. These files contain:
 1. The necessary code to import this repository as a Terraform module.
 2. All required variables for a basic setup.
-3. A helper script for accessing your cluster from your local machine.
 
 Just copy the whole `hetzner/exmaples` directory to a directory you wish (your working directory) and adapt the terraform examples.
 
@@ -55,28 +52,48 @@ Alternatively you can use the ssh-method to clone the repo during the init-proce
 
 ### 2.2 Provide important variables
 
-Below is a list of the variables you ***must*** provide in your config:
+In your template file you can choose how many and which servers you want to provision in which datacenter.
+Below is a list of the variables you should provide in your config:
 | Variable | Type | Description |
 | --------- | ---- | --------- |
-| *hcloud_token* | string | The Hetzner Cloud API token created Step 1 | 
-| *admins* | [list(object)](./vars.tf) | list of admin objects, containing a name and the corresponding public ssh key. See [vars.tf](vars.tf) for details |
-| *k3s_worker_nodes* | list(object) | A list of worker nodes. Default to one backend and one gateway node. Search for `k3s_worker_nodes` in [vars.tf](vars.tf) for a objects properties |
+| *k3s_cluster_name* | string | The name for your k3s cluster. |
+| *k3s_leader_count* | number | The number of leader nodes. Must be odd. Except for corner cases where you want to provision a multi-leader cluster, 1 is fine. |
+| *k3s_controller_server_type* | string | The hetzner server code for controller nodes. Choose one from https://www.hetzner.com/cloud/#pricing, only choose Intel/AMD machines." |
+| *k3s_base_os* | string | The name of the operating system to install on all controller nodes and the default for worker nodes. We only tested on "Debian 13". |
+| *gateway_mode_enabled* |boolean | Set to true if you want to provision a gateway cluster, false for backend. Defaults to false. |
+| *datacenter* | string | Hetzner datacenter name (e.g., hel1-dc2 for Helsinki). Choose one from https://docs.hetzner.com/cloud/general/locations but make sure the chosen server type is available at the chosen location.|
+| *k3s_network_name* | string | Name for the network. |
+| *network_zone* | string | Name of network zone. Must match the datacenter location. See https://docs.hetzner.com/cloud/general/locations/ |
+| *admins* | list(object({ name = string, public_key = string })) | List of admin SSH key objects containing a freely selectable name and a corresponding public ssh key. |
+| *k3s_worker_nodes* | list(object({ name = string, count = number, server_type = optional string, image = optional string, labels = optional map(string)  }))  | A list of groups of worker nodes, each sharing a common operating system and server flavor. The variable *count* determines how many nodes of this kind you want to spin up. The *image* defaults to the value of *k3s_base_os*. In a single-node cluster like a gateway this variable should be [] as there is only one controller node and no worker nodes. Defaults to []. | See [vars.tf](https://0xacab.org/leap/container-platform/terraform-hetzner-k3s-vpn/-/blob/no-masters/vars.tf) for more configuration options. |
+| *other_labels* | map(string) | Labels to add to your cloud project. Labels are key/value pairs and used to tag the virtual machines in hetzner. They are useful for filtering in the hetzner cloud console. Both key and value must be 63 characters or less, beginning and ending with an alphanumeric character and alphanumerics can be used inbetween. |
 
-## 3. Provision the resources
+## 3. Create and provide a Hetzner API token for your project
 
-### 3.1 Initialize terraform
+First you need to generate a Read-Write token for your project in order to create and delete resources with terraform. Enter your new project in the Hetzner console and navigate to `Security` settings (left sidebar, bottom).
+Go to the `API tokens` tab and click `Generate API token`. Make sure to activate `Read & Write` permissions. Store the generated token securily. It is only shown once in the web interface.
+
+In order to provide this API token to terraform you can use an environment variable. Open a shell and type the following command:
+
+```bash
+export TF_VAR_hcloud_token=<your-API-token>
+```
+
+## 4. Provision the resources
+
+### 4.1 Initialize terraform
 In the same shell and in the folder with your terraform project file, run 
 ```
 terraform init
 ``` 
-### 3.2 Run
+### 4.2 Run
 When everything works out run 
 ```
 terraform plan
 ```
 Read the plan and make sure things are getting created as expected.
 
-### 3.3 Apply
+### 4.3 Apply
 Last run 
 ```
 terraform apply
@@ -84,6 +101,6 @@ terraform apply
 Your k3s cluster is now being provisioned. 🎊\
 You can check on the Hetzner cloud console dashboard if all of your resources are created as expected.
 
-## 4. Accessing the cluster using port forwarding
+## 5. Accessing the cluster using port forwarding
 
 The [podlily](https://0xacab.org/leap/container-platform/podlily) repository contains a script `access_cluster.sh` that can be used to port-forward into the cluster. This method also allows provisioning from your local machine to remotes. Copy the script into this directory to use it. You can find more information on the script in its documentation that is also part of podlily.
