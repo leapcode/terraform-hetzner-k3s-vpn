@@ -14,18 +14,18 @@ A Terraform module to provision a minimal k3s Kubernetes cluster tailored to LEA
 
 We propose the following setup of services across worker nodes:
 
-**k3s controller node (reverse-proxy):**
+**k3s controller node (backend, reverse-proxy):**
 * Ingress : Traefik
 * cert-manager (https://cert-manager.io/) and other kube-master components
 
-**k3s worker node 1 (backend):**
+**k3s worker node 1 (menshen):**
 * menshen
 * invitectl to add invite codes to db menshen depends on 
 
-**k3s worker node 2: (monitoring, logs):**
+**k3s worker node 2: (monitoring):**
 * [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) including
-* prometheus
-* grafana
+* Prometheus
+* Grafana
 
 
 # Provisioning on Hetzner Cloud
@@ -52,7 +52,8 @@ Alternatively you can use the ssh-method to clone the repo during the init-proce
 
 ### 2.2 Provide important variables
 
-In your template file you can choose how many and which servers you want to provision in which datacenter.
+In your template file you can choose how many and which servers you want to provision in which datacenter. It is important to first check which server types are available in which region. It is easiest to achieve this by navigating to your cloud project in the Hetzner console and pretending to want to create a server by clicking through the interface. Go to _Servers_ on the top of the left navigation bar and click "Add Server". There you can see all current datacenter locations with their codes and server types available in them. Choose only servers with 'x86' architecture. You need to fill in the server names in the template file.
+
 Below is a list of the variables you should provide in your config:
 | Variable | Type | Description |
 | --------- | ---- | --------- |
@@ -65,8 +66,8 @@ Below is a list of the variables you should provide in your config:
 | *k3s_network_name* | string | Name for the network. |
 | *network_zone* | string | Name of network zone. Must match the datacenter location. See https://docs.hetzner.com/cloud/general/locations/ |
 | *admins* | list(object({ name = string, public_key = string })) | List of admin SSH key objects containing a freely selectable name and a corresponding public ssh key. |
-| *k3s_worker_nodes* | list(object({ name = string, count = number, server_type = optional string, image = optional string, labels = optional map(string)  }))  | A list of groups of worker nodes, each sharing a common operating system and server flavor. The variable *count* determines how many nodes of this kind you want to spin up. The *image* defaults to the value of *k3s_base_os*. In a single-node cluster like a gateway this variable should be [] as there is only one controller node and no worker nodes. Defaults to []. | See [vars.tf](https://0xacab.org/leap/container-platform/terraform-hetzner-k3s-vpn/-/blob/no-masters/vars.tf) for more configuration options. |
-| *other_labels* | map(string) | Labels to add to your cloud project. Labels are key/value pairs and used to tag the virtual machines in hetzner. They are useful for filtering in the hetzner cloud console. Both key and value must be 63 characters or less, beginning and ending with an alphanumeric character and alphanumerics can be used inbetween. |
+| *k3s_worker_nodes* | list(object({ name = string, count = number, server_type = optional string, image = optional string, labels = optional map(string)  }))  | A list of groups of worker nodes, each sharing a common operating system and server flavor. The variable *count* determines how many nodes of this kind you want to spin up. The *image* defaults to the value of *k3s_base_os*. In a single-node cluster like a gateway this variable should be [] as there is only one controller node and no worker nodes. See [vars.tf](https://0xacab.org/leap/container-platform/terraform-hetzner-k3s-vpn/-/blob/no-masters/vars.tf#L106-129) for more configuration options. |
+| *other_labels* | map(string) | Labels to tag the virtual machines in your cloud project for easy filtering in the Hetzner console. Both key and value must be 63 characters or less, beginning and ending with an alphanumeric character and alphanumerics can be used inbetween. |
 
 ## 3. Create and provide a Hetzner API token for your project
 
@@ -86,19 +87,22 @@ In the same shell and in the folder with your terraform project file, run
 ```
 terraform init
 ``` 
+This initializes a working directory containing Terraform configuration files.
+
 ### 4.2 Run
 When everything works out run 
 ```
 terraform plan
 ```
-Read the plan and make sure things are getting created as expected.
+This creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure.Read the plan and make sure things are getting created as expected.
 
 ### 4.3 Apply
 Last run 
 ```
 terraform apply
 ```
-Your k3s cluster is now being provisioned. 🎊\
+This executes the actions proposed in the Terraform plan to create, update, or destroy infrastructure. Your k3s cluster is now being provisioned. 🎊
+
 You can check on the Hetzner cloud console dashboard if all of your resources are created as expected.
 
 ## 5. Accessing the cluster using port forwarding

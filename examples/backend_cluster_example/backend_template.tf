@@ -7,14 +7,29 @@ module "k3s" {
 
   # Cluster name
   k3s_cluster_name = "backend-cluster"
+  k3s_leader_count = 1
+
+  # Server configuration
+k3s_controller_server_type = "ccx13" # TODO: Check if this server type is available in your chosen location or choose other server type
+  k3s_base_os                = "debian-13" # do not change
+  gateway_mode_enabled       = false # do not change
+  datacenter                 = "hel1-dc2" # TODO: Choose a Hetzner datacenter name in the location you want to provision your resources
 
   # Network configuration
   k3s_network_name = "backend-cluster"
+  network_zone     = "eu-central"  # TODO: Adapt to datacenter location if neccessary
 
-  # List of your worker nodes. (Your controller node will be created automatically)
-  # Check terraform-k3s/hetzner/vars.tf to see all available properties of
-  # the k3s_worker_node object
-  k3s_worker_nodes = [
+  # Admin SSH keys - you'll need to provide these
+  admins = [
+    {
+      name       = "<your_admin_name>"
+      public_key = "<your_public_ssh_key>"
+    }
+  ]
+
+  # List of your worker nodes.
+  # Check vars.tf to see all available properties of the k3s_worker_nodes object
+  k3s_worker_nodes = [ # TODO : add admin ssh keys here!
     {
       name  = "menshen"
       count = 1
@@ -31,20 +46,7 @@ module "k3s" {
     }
   ]
 
-  # Admin SSH keys - you'll need to provide these
-  admins = [
-    {
-      name       = "<your_admin_name>"
-      public_key = "<your_public_ssh_key>"
-    }
-  ]
-
-  # Labels are key/value pairs and used to tag the virtual machines in hetzner
-  # Useful to filter them in the hetzner cloud console
-  # Both key and value must be 63 characters or less, 
-  # beginning and ending with an alphanumeric character and 
-  # alphanumerics can be used inbetween
-
+  # Labels to tag the virtual machines in your cloud project for easy filtering in the Hetzner console.
   other_labels = {
     "owners"  = "your-name"
     "env"     = "staging"

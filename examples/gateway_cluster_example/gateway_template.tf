@@ -6,42 +6,37 @@ module "k3s" {
   source       = "git::https://0xacab.org/leap/container-platform/terraform-hetzner-k3s-vpn.git?ref=no-masters"
   hcloud_token = var.hcloud_token
 
-  # Cluster name
-  k3s_cluster_name = "k3s-gateway"
+  # Single node configuration
+  k3s_cluster_name = "gateway-location" # TODO: choose a name wrt location
+  k3s_leader_count = 1                  # do not change                 
 
   # Server configuration
-  # required to be set to true, do not change
-  gateway_mode_enabled = true
+  k3s_controller_server_type = "ccx11"     # TODO: Check if this server type is available in your chosen location or choose other server type
+  k3s_base_os                = "debian-13" # do not change
+  gateway_mode_enabled       = true        # do not change
+  datacenter                 = "hel1-dc2"  # TODO: Choose a Hetzner datacenter name in the location you want to provision your resources
 
   # Network configuration
-  k3s_network_name = "k3s-gateway-network"
+  k3s_network_name = "gateway-location-network" # TODO: choose a name wrt location
+  network_zone     = "eu-central"               # TODO: Adapt to datacenter location if neccessary
 
-  # Optionally set the data center and the server, there are defaults set in vars.tf
-  #
-  # k3s_controller_datacenter = <set-data-center>
-  # k3s_controller_server_type = <set-server-type>
+  # Admin SSH keys - you need to provide these
+  admins = [ # TODO : add admin ssh keys here!
+    # {
+    #   name = "user"
+    #   public_key = "ssh-ed25519 xxxxxxxxxxxxxxxxxxxxxxx"
+    # }
+  ]
 
   # No worker nodes for single node gateway setup
   k3s_worker_nodes = [] # do not change
 
-  # Admin SSH keys - you'll need to provide these
-  admins = [
-    {
-      name       = "<your_admin_name>"
-      public_key = "<your_public_ssh_key>"
-    }
-  ]
-
-  # Labels are key/value pairs and used to tag the virtual machines in hetzner
-  # Useful to filter them in the hetzner cloud console
-  # Both key and value must be 63 characters or less, 
-  # beginning and ending with an alphanumeric character and 
-  # alphanumerics can be used inbetween
-  other_labels = {
+  # Labels to tag the virtual machines in your cloud project for easy filtering in the Hetzner console.
+  other_labels = { # TODO: Adapt or delete labels
     "owners" = "yourname"
     "env"    = "staging"
     "type"   = "gateway"
-    "tier"   = "cost-optimized"
+    "tier"   = "tier-label"
   }
 }
 
