@@ -30,27 +30,27 @@ We propose the following setup of services across worker nodes:
 
 # Provisioning on Hetzner Cloud
 
-## 1. Create a public cloud project on Hetzner
+## 1. Creating a Public Cloud project on Hetzner
 
-Follow these steps to set up your project.
+Follow these steps to set up your project:
 
-1. Create a Hetzner Account and Log in.
-2. Create a new project: on the Dashboard, click `New Project`, enter a name and click `Add project`.
+1. Create a Hetzner Account on https://www.hetzner.com/ and log in.
+2. Create a new project: on the dashboard, click `New Project`, enter a name and click `Add project`.
 
-## 2. Configure your project
+## 2. Configuring your project
 
 It's easiest to start with the template files for backend and gateway cluster located under `hetzner/examples`. These files contain:
 1. The necessary code to import this repository as a Terraform module.
 2. All required variables for a basic setup.
 
-Just copy the whole `hetzner/exmaples` directory to a directory you wish (your working directory) and adapt the terraform examples.
+Just copy the whole `hetzner/exmaples` directory to a directory you wish (your working directory) and adapt the Terraform examples.
 
-### 2.1 Ensure Git access
+### 2.1 Ensuring Git access
 
-Make sure you have access to the git repo and can git clone it, otherwise terraform initialization will fail.
+Make sure you have access to the git repo and can git clone it, otherwise Terraform initialization will fail.
 Alternatively you can use the ssh-method to clone the repo during the init-process by replacing the `source = ...`  line by `source = "git::ssh://git@0xacab.org/leap/container-platform/terraform-k3s.git"`
 
-### 2.2 Provide important variables
+### 2.2 Providing important variables
 
 In your template file you can choose how many and which servers you want to provision in which datacenter. It is important to first check which server types are available in which region. It is easiest to achieve this by navigating to your cloud project in the Hetzner console and pretending to want to create a server by clicking through the interface. Go to _Servers_ on the top of the left navigation bar and click "Add Server". There you can see all current datacenter locations with their codes and server types available in them. Choose only servers with 'x86' architecture. You need to fill in the server names in the template file.
 
@@ -69,41 +69,41 @@ Below is a list of the variables you should provide in your config:
 | *k3s_worker_nodes* | list(object({ name = string, count = number, server_type = optional string, image = optional string, labels = optional map(string)  }))  | A list of groups of worker nodes, each sharing a common operating system and server flavor. The variable *count* determines how many nodes of this kind you want to spin up. The *image* defaults to the value of *k3s_base_os*. In a single-node cluster like a gateway this variable should be [] as there is only one controller node and no worker nodes. See [vars.tf](https://0xacab.org/leap/container-platform/terraform-hetzner-k3s-vpn/-/blob/no-masters/vars.tf#L106-129) for more configuration options. |
 | *other_labels* | map(string) | Labels to tag the virtual machines in your cloud project for easy filtering in the Hetzner console. Both key and value must be 63 characters or less, beginning and ending with an alphanumeric character and alphanumerics can be used inbetween. |
 
-## 3. Create and provide a Hetzner API token for your project
+## 3. Creating and providing a Hetzner API token for your project
 
-First you need to generate a Read-Write token for your project in order to create and delete resources with terraform. Enter your new project in the Hetzner console and navigate to `Security` settings (left sidebar, bottom).
+First you need to generate a Read-Write token for your project in order to create and delete resources with Terraform. Enter your new project in the Hetzner console and navigate to `Security` settings (left sidebar, bottom).
 Go to the `API tokens` tab and click `Generate API token`. Make sure to activate `Read & Write` permissions. Store the generated token securily. It is only shown once in the web interface.
 
-In order to provide this API token to terraform you can use an environment variable. Open a shell and type the following command:
+In order to provide this API token to Terraform you can use an environment variable. Open a shell, fill in your newly created token and run:
 
 ```bash
 export TF_VAR_hcloud_token=<your-API-token>
 ```
 
-## 4. Provision the resources
+## 4. Provisioning the resources using Terraform
 
-### 4.1 Initialize terraform
-In the same shell and in the folder with your terraform project file, run 
+### 4.1 Initializing Terraform
+In the same shell and in the folder with your Terraform project file, run 
 ```
 terraform init
 ``` 
 This initializes a working directory containing Terraform configuration files.
 
-### 4.2 Run
+### 4.2 Planning
 When everything works out run 
 ```
 terraform plan
 ```
 This creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure.Read the plan and make sure things are getting created as expected.
 
-### 4.3 Apply
+### 4.3 Applying
 Last run 
 ```
 terraform apply
 ```
 This executes the actions proposed in the Terraform plan to create, update, or destroy infrastructure. Your k3s cluster is now being provisioned. 🎊
 
-You can check on the Hetzner cloud console dashboard if all of your resources are created as expected.
+You can check on the Hetzner Cloud Console Dashboard if all of your resources are created as expected.
 
 ## 5. Accessing the cluster using port forwarding
 
