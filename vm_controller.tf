@@ -4,7 +4,7 @@ resource "hcloud_server" "k3s_controller" {
   server_type = var.k3s_controller_server_type
   image       = var.k3s_base_os
   ssh_keys    = local.admin_ssh_key_ids
-  location  = var.location
+  location    = var.location
 
   user_data = templatefile("${path.module}/templates/cloud-init.sh", {
     k3s_token            = random_password.k3s_token.result,
