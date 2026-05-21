@@ -18,7 +18,6 @@ module "k3s" {
 
   # Network configuration
   k3s_network_name = "gateway-location-network" # ⚠️ Choose a name wrt gateway location
-  network_zone     = "eu-central"               # ⚠️ Adapt to location if neccessary
 
   # Admin SSH keys - you need to provide these
   admins = [ # ⚠️ Add admin ssh keys here

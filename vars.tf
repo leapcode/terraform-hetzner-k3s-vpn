@@ -176,13 +176,6 @@ variable "k3s_base_os" {
   description = "Choose the debian version(we have only tested on debian 12)"
 }
 
-variable "network_zone" {
-  type        = string
-  default     = "eu-central"
-  description = "Name of network zone."
-
-}
-
 variable "gateway_mode_enabled" {
   description = "Set to true to enable gateway, false to disable."
   type        = bool

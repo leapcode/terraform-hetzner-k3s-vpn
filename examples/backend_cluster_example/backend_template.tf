@@ -18,7 +18,6 @@ module "k3s" {
 
   # Network configuration
   k3s_network_name = "backend-cluster"
-  network_zone     = "eu-central" # ⚠️ Adapt to location if neccessary
 
   # Admin SSH keys - you'll need to provide these
   admins = [ # ⚠️ Add admin ssh keys here!
