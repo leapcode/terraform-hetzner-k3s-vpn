@@ -44,9 +44,10 @@ locals {
   location_map = {
     for loc in data.hcloud_locations.all.locations :
     loc.name => {
-      name    = loc.name
-      city    = try(loc.city, "unknown")
-      country = try(loc.country, "unknown")
+      name         = loc.name
+      network_zone = loc.network_zone
+      city         = try(loc.city, "unknown")
+      country      = try(loc.country, "unknown")
       server_types = compact([
         for st in data.hcloud_server_types.all.server_types :
         st.name if anytrue([
