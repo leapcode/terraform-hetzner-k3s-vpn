@@ -41,20 +41,17 @@ locals {
     ]
   ])
 
-  datacenter_map = {
-    for dc in data.hcloud_datacenters.all.datacenters :
-    dc.name => {
-      name    = dc.name
-      city    = try(dc.location.city, "unknown")
-      country = try(dc.location.country, "unknown")
+  location_map = {
+    for loc in data.hcloud_locations.all.locations :
+    loc.name => {
+      name    = loc.name
+      city    = try(loc.city, "unknown")
+      country = try(loc.country, "unknown")
       server_types = compact([
-        for id in dc.available_server_type_ids : (
-          // find matching server type names from the server_types data source
-          join("", [
-            for st in data.hcloud_server_types.all.server_types :
-            st.name if st.id == id
-          ])
-        )
+        for st in data.hcloud_server_types.all.server_types :
+        st.name if anytrue([
+          for l in st.locations : l.available && l.name == loc.name
+        ])
       ])
     }
   }

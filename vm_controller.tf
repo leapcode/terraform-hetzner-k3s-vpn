@@ -4,7 +4,7 @@ resource "hcloud_server" "k3s_controller" {
   server_type = var.k3s_controller_server_type
   image       = var.k3s_base_os
   ssh_keys    = local.admin_ssh_key_ids
-  datacenter  = var.datacenter
+  location  = var.location
 
   user_data = templatefile("${path.module}/templates/cloud-init.sh", {
     k3s_token            = random_password.k3s_token.result,
@@ -42,7 +42,7 @@ resource "hcloud_floating_ip" "k3s_controller" {
   count         = var.gateway_mode_enabled ? var.k3s_leader_count : 0
   name          = "${var.k3s_cluster_name}-controller-${count.index}"
   type          = "ipv4"
-  home_location = split("-", var.datacenter)[0]
+  home_location = var.location
 }
 
 resource "hcloud_floating_ip_assignment" "k3s_controller" {

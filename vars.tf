@@ -55,38 +55,38 @@ variable "k3s_cluster_dns" {
   description = "Set the '--cluster-dns' flag with the value. It should be in the range of the service-cidr"
 }
 
+# https://docs.hetzner.com/cloud/general/locations/
+variable "location" {
+  type        = string
+  description = "Hetzner location name (e.g., hel1)."
+  default     = "hel1"
+
+  validation {
+    # validating the existence of the location name
+    condition = lookup(local.location_map, var.location, null) != null
+
+    error_message = format("Invalid value for location.\n\nAllowed values for location: %v.\n\nSet value for location: %s",
+      keys(local.location_map),
+      var.location
+    )
+  }
+}
+
 variable "k3s_controller_server_type" {
   type        = string
   default     = "cx23"
   description = "Choose one from https://www.hetzner.com/cloud/#pricing, only choose Intel/AMD machines."
 
   validation {
-    # validating the availability of the controller server type in the configured datacenter
+    # validating the availability of the controller server type in the configured location
     condition = (
-      contains(lookup(local.datacenter_map, var.datacenter, { server_types = [] }).server_types, var.k3s_controller_server_type)
+      contains(lookup(local.location_map, var.location, { server_types = [] }).server_types, var.k3s_controller_server_type)
     )
 
-    error_message = format("Invalid value for k3s_controller_server_type at datacenter %s. \n\nAllowed values for k3s_controller_server_type: %v\n\nSet value for k3s_controller_server_type: %s",
-      var.datacenter,
-      lookup(local.datacenter_map, var.datacenter, { server_types = [] }).server_types,
+    error_message = format("Invalid value for k3s_controller_server_type at location %s. \n\nAllowed values for k3s_controller_server_type: %v\n\nSet value for k3s_controller_server_type: %s",
+      var.location,
+      lookup(local.location_map, var.location, { server_types = [] }).server_types,
       var.k3s_controller_server_type
-    )
-  }
-}
-
-# https://docs.hetzner.com/cloud/general/locations/
-variable "datacenter" {
-  type        = string
-  description = "Hetzner datacenter name (e.g., hel1-dc2)."
-  default     = "hel1-dc2"
-
-  validation {
-    # validating the existence of the data center name
-    condition = lookup(local.datacenter_map, var.datacenter, null) != null
-
-    error_message = format("Invalid value for datacenter.\n\nAllowed values for datacenter: %v.\n\nSet value for datacenter: %s",
-      keys(local.datacenter_map),
-      var.datacenter
     )
   }
 }
@@ -138,9 +138,9 @@ variable "k3s_worker_nodes" {
         node.server_type == null &&
         # verify that node name is mapped to a default server_type
         lookup(local.default_server_types_map, node.name, null) != null &&
-        # verify that the datacenter supports the default server_type
+        # verify that the location supports the default server_type
         contains(
-          lookup(local.datacenter_map, var.datacenter, { server_types = [] }).server_types,
+          lookup(local.location_map, var.location, { server_types = [] }).server_types,
         local.default_server_types_map[node.name].server_type)
       )
       ||
@@ -148,17 +148,17 @@ variable "k3s_worker_nodes" {
       (
         # verify that server_type is not null
         node.server_type != null &&
-        # verify that the datacenter supports the given server_type
+        # verify that the location supports the given server_type
         contains(
-          lookup(local.datacenter_map, var.datacenter, { server_types = [] }).server_types,
+          lookup(local.location_map, var.location, { server_types = [] }).server_types,
           node.server_type
         )
       )
     ])
 
-    error_message = format("Invalid k3s_worker_nodes server_type at datacenter %s.\n\nAllowed values for server_type:\n%v\n\nAllowed node names with automatically assigned defaults: \n%v\n\nSet values for server_type:\n%v",
-      var.datacenter,
-      lookup(local.datacenter_map, var.datacenter, { server_types = [] }).server_types,
+    error_message = format("Invalid k3s_worker_nodes server_type at location %s.\n\nAllowed values for server_type:\n%v\n\nAllowed node names with automatically assigned defaults: \n%v\n\nSet values for server_type:\n%v",
+      var.location,
+      lookup(local.location_map, var.location, { server_types = [] }).server_types,
       local.default_server_types_map,
       [
         for node in var.k3s_worker_nodes : {

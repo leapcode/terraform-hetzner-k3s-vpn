@@ -14,11 +14,11 @@ module "k3s" {
   k3s_controller_server_type = "ccx11"     # ⚠️ Check if this server type is available in your chosen location or choose other server type
   k3s_base_os                = "debian-13" # do not change
   gateway_mode_enabled       = true        # do not change
-  datacenter                 = "hel1-dc2"  # ⚠️ Choose a Hetzner datacenter name in the location you want to provision your resources
+  location                   = "hel1"      # ⚠️ Choose a Hetzner location name where you want to provision your resources
 
   # Network configuration
   k3s_network_name = "gateway-location-network" # ⚠️ Choose a name wrt gateway location
-  network_zone     = "eu-central"               # ⚠️ Adapt to datacenter location if neccessary
+  network_zone     = "eu-central"               # ⚠️ Adapt to location if neccessary
 
   # Admin SSH keys - you need to provide these
   admins = [ # ⚠️ Add admin ssh keys here
